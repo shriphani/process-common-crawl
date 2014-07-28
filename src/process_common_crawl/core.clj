@@ -51,11 +51,13 @@
         (when (nil?
                (get @downloaded-keys document-key))
           (let [instream  (:content (get-document-blob document))
-                outstream (io/output-stream (str index ".arc.gz"))]
+                outstream (io/output-stream (str "/bos/tmp19/spalakod/clueweb12pp/common_crawl/"
+                                                 index
+                                                 ".arc.gz"))]
             (io/copy instream outstream)))))
     (.close rdr)))
 
 (defn -main
   [& args]
   (let [locations-file (first args)]
-    (process-common-crawl-data locations-fil)))
+    (process-common-crawl-data locations-file)))
