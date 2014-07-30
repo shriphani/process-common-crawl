@@ -5,5 +5,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[cheshire "5.3.1"]
                  [clj-aws-s3 "0.3.9"]
-                 [org.clojure/clojure "1.6.0"]]
-  :main process-common-crawl.core)
+                 [clj-http "0.9.2"]
+                 [clj-time "0.8.0"]
+                 [org.clojure/clojure "1.6.0"]
+                 [org.netpreserve.commons/webarchive-commons "1.1.3"]
+                 [subotai "0.2.12"]]
+  :main process-common-crawl.download-locations-content)
