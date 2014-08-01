@@ -55,7 +55,9 @@
                                                  "/"
                                                  index
                                                  ".arc.gz"))]
-            (io/copy instream outstream)))))
+            (io/copy instream outstream)
+            (.close outstream)
+            (.close instream)))))
     (.close rdr)))
 
 (defn -main
