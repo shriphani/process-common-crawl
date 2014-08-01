@@ -40,7 +40,7 @@
                    document-key)))
 
 (defn process-common-crawl-data
-  [locations-file]
+  [locations-file dir-loc]
   (let [rdr (io/reader locations-file)
 
         documents
@@ -51,7 +51,8 @@
         (when (nil?
                (get @downloaded-keys document-key))
           (let [instream  (:content (get-document-blob document))
-                outstream (io/output-stream (str "/bos/tmp19/spalakod/clueweb12pp/common_crawl/"
+                outstream (io/output-stream (str dir-loc
+                                                 "/"
                                                  index
                                                  ".arc.gz"))]
             (io/copy instream outstream)))))
@@ -59,5 +60,6 @@
 
 (defn -main
   [& args]
-  (let [locations-file (first args)]
-    (process-common-crawl-data locations-file)))
+  (let [locations-file (first args)
+        dir-loc (second args)]
+    (process-common-crawl-data locations-file dir-loc)))

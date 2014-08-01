@@ -10,4 +10,4 @@
                  [org.clojure/clojure "1.6.0"]
                  [org.netpreserve.commons/webarchive-commons "1.1.3"]
                  [subotai "0.2.12"]]
-  :main process-common-crawl.download-locations-content)
+  :main process-common-crawl.download-warcs)
