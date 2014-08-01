@@ -55,7 +55,8 @@
                                                  "/"
                                                  index
                                                  ".arc.gz"))]
-            (io/copy instream outstream)
+            (try (io/copy instream outstream)
+                 (catch Exception _ (do (println "Fuck up: " document))))
             (.close outstream)
             (.close instream)))))
     (.close rdr)))
