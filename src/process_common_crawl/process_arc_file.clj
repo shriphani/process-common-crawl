@@ -63,6 +63,13 @@
                (t/date-time 2012 5))
    a-date))
 
+(defn close-to-clueweb?
+  [a-date]
+  (t/within?
+   (t/interval (t/date-time 2012 1)
+               (t/date-time 2012 7))
+   a-date))
+
 (defn process-downloaded-corpus
   [locations-file corpus-loc]
   (let [document-loc (document-arc-file locations-file)
@@ -81,7 +88,7 @@
             arc-rdr (ARCReaderFactory/get arc-file)
             arc-record (.get arc-rdr offset)]
         (when (some
-               in-clueweb?
+               close-to-clueweb?
                (process-record arc-record))
           (println (.getHeaderString arc-record)))
         (.close arc-rdr)))
