@@ -4,7 +4,9 @@
             [clojure.string :as string]
             [process-common-crawl.core :as core]))
 
-(def output-dir "/bos/tmp19/spalakod/clueweb12pp/common_crawl/")
+(def host-locs-dir "/bos/tmp19/spalakod/clueweb12pp/common_crawl/")
+
+(def output-dir "/bos/tmp17/spalakod/common_crawl/")
 
 (defn -main
   [& args]
@@ -18,7 +20,7 @@
             (io/as-file
              (str output-dir
                   loc-dir)))
-           (core/process-common-crawl-data (str output-dir
+           (core/process-common-crawl-data (str host-locs-dir
                                                 "host_locations/"
                                                 json-file)
                                            (str output-dir
