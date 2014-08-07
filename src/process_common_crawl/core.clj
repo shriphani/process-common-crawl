@@ -1,11 +1,12 @@
 (ns process-common-crawl.core
   "Load a locations file and download stuff from
    S3 and speak / process it."
-  (:gen-class :main true)
   (:require [aws.sdk.s3 :as s3]
             [cheshire.core :as json]
             [clojure.java.io :as io])
-  (:use [clojure.walk]))
+  (:use [clojure.walk])
+  (:import [java.util.zip GZIPInputStream]
+           [org.archive.io.arc ARCReader ARCReaderFactory]))
 
 (def s3-bucket "aws-publicdatasets")
 
@@ -22,47 +23,42 @@
 (defn get-document-key
   [a-document]
   (str "common-crawl/parse-output/segment/"
-                          (:arcSourceSegmentId a-document)
-                          "/"
-                          (:arcFileDate a-document)
-                          "_"
-                          (:arcFileParition a-document)
-                          ".arc.gz"))
+       (:arcSourceSegmentId a-document)
+       "/"
+       (:arcFileDate a-document)
+       "_"
+       (:arcFileParition a-document)
+       ".arc.gz"))
+
+(defn get-document-blob-key
+  [key]
+  (s3/get-object aws-creds
+                 s3-bucket
+                 key))
 
 (defn get-document-blob
   [a-document]
   (let [document-key (get-document-key a-document)]
-    (swap! downloaded-keys (fn [x]
-                             (clojure.set/union x
-                                                (set [document-key]))))
-    (s3/get-object aws-creds
-                   s3-bucket
-                   document-key)))
+    (get-document-blob-key document-key)))
 
-(defn process-common-crawl-data
-  [locations-file dir-loc]
-  (let [rdr (io/reader locations-file)
+(defn get-keys-offsets
+  [a-json-file]
+  (let [rdr (io/reader a-json-file)
+        documents (load-locations-file rdr)]
+    (map
+     (fn [doc]
+       [(get-document-key doc)
+        (:url doc)
+        (:arcFileOffset doc)])
+     documents)))
 
-        documents
-        (load-locations-file rdr)
-        idv (map vector (iterate inc 0) documents)]
-    (doseq [[index document] idv]
-      (let [document-key (get-document-key document)]
-        (when (nil?
-               (get @downloaded-keys document-key))
-          (let [instream  (:content (get-document-blob document))
-                outstream (io/output-stream (str dir-loc
-                                                 "/"
-                                                 index
-                                                 ".arc.gz"))]
-            (try (io/copy instream outstream)
-                 (catch Exception _ (do (println "Fuck up: " document))))
-            (.close outstream)
-            (.close instream)))))
-    (.close rdr)))
+(defn get-record-at-offset
+  [key]
+  (let [instream (-> key
+                     get-document-blob-key
+                     :content)
 
-(defn -main
-  [& args]
-  (let [locations-file (first args)
-        dir-loc (second args)]
-    (process-common-crawl-data locations-file dir-loc)))
+        rdr   (ARCReaderFactory/get "wtfisthisarg"
+                                    instream
+                                    true)]
+    rdr))
